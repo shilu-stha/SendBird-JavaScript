@@ -6,6 +6,22 @@ import SendBird from "sendbird";
 const GLOBAL_HANDLER = "GLOBAL_HANDLER";
 const GET_MESSAGE_LIMIT = 20;
 
+
+/**  
+ * FP CHANGES 
+ * Filter list of users according to metaData, which contains organizationName. 
+ * Show only the users which are in same organization as the logged in user.
+*/
+function filterUsersByOrganizationName(list, currentUser) {
+  const filteredUsers = list.filter(user => {
+    if(user.metaData.organizationName === currentUser.metaData.organizationName){
+      return user;
+    }
+  });
+
+  return filteredUsers;
+}
+
 class SendBirdAdapter {
   constructor(appId) {
     this.sb = new SendBird({
@@ -194,7 +210,10 @@ class SendBirdAdapter {
               const list = users.filter(user => {
                 return channelMemberIds.indexOf(user.userId) < 0;
               });
-              const filteredUsers = [...prevUsers, ...list];
+
+              /**  FP CHANGES */
+              const filteredUsers = filterUsersByOrganizationName([...prevUsers, ...list], this.sb.currentUser); 
+
               if (filteredUsers.length < userListQuery.limit / 2) {
                 return this._loadUserListFilter(
                   userListQuery,
@@ -208,14 +227,21 @@ class SendBirdAdapter {
               }
             })
             .catch(() => {
-              resolve([...users, ...prevUsers]);
+              /**  FP CHANGES */
+              const filteredUsers = filterUsersByOrganizationName([...users, ...prevUsers], this.sb.currentUser);
+              resolve(filteredUsers);
             });
         } else {
-          resolve([...users, ...prevUsers]);
+          /**  FP CHANGES */
+          const filteredUsers = filterUsersByOrganizationName([...users, ...prevUsers], this.sb.currentUser);
+          resolve(filteredUsers);
         }
       })
-      .catch(() => {
-        resolve(prevUsers);
+      .catch((err) => {
+        /**  FP CHANGES */
+        console.error('SENDBIRD ERROR', err);
+        const filteredUsers = filterUsersByOrganizationName(prevUsers, this.sb.currentUser);
+        resolve(filteredUsers);
       });
   }
 
