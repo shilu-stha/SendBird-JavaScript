@@ -526,7 +526,13 @@ class SBWidget {
     }
     this.chatSection.addUserListScrollEvent(target, () => {
       this.sb.getUserList(null, userList => {
-        this.setUserList(target, userList);
+        /**  
+         * FP CHANGES 
+         * To avoid loops on empty string only recall the method when list is not empty.
+        */
+        if(userList.length > 0){
+          this.setUserList(target, userList);
+        }
       });
     });
   }

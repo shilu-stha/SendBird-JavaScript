@@ -6,22 +6,6 @@ import SendBird from "sendbird";
 const GLOBAL_HANDLER = "GLOBAL_HANDLER";
 const GET_MESSAGE_LIMIT = 20;
 
-
-/**  
- * FP CHANGES 
- * Filter list of users according to metaData, which contains organizationName. 
- * Show only the users which are in same organization as the logged in user.
-*/
-function filterUsersByOrganizationName(list, currentUser) {
-  const filteredUsers = list.filter(user => {
-    if(user.metaData.organizationName === currentUser.metaData.organizationName){
-      return user;
-    }
-  });
-
-  return filteredUsers;
-}
-
 class SendBirdAdapter {
   constructor(appId) {
     this.sb = new SendBird({
@@ -212,8 +196,7 @@ class SendBirdAdapter {
               });
 
               /**  FP CHANGES */
-              const filteredUsers = filterUsersByOrganizationName([...prevUsers, ...list], this.sb.currentUser); 
-
+              const filteredUsers = [...prevUsers, ...list];
               if (filteredUsers.length < userListQuery.limit / 2) {
                 return this._loadUserListFilter(
                   userListQuery,
@@ -226,22 +209,19 @@ class SendBirdAdapter {
                 resolve(filteredUsers);
               }
             })
-            .catch(() => {
+            .catch((err) => {
               /**  FP CHANGES */
-              const filteredUsers = filterUsersByOrganizationName([...users, ...prevUsers], this.sb.currentUser);
-              resolve(filteredUsers);
+              console.error('SENDBIRD ERROR', err);
+              resolve([...users, ...prevUsers]);
             });
         } else {
-          /**  FP CHANGES */
-          const filteredUsers = filterUsersByOrganizationName([...users, ...prevUsers], this.sb.currentUser);
-          resolve(filteredUsers);
+          resolve([...users, ...prevUsers]);
         }
       })
       .catch((err) => {
         /**  FP CHANGES */
         console.error('SENDBIRD ERROR', err);
-        const filteredUsers = filterUsersByOrganizationName(prevUsers, this.sb.currentUser);
-        resolve(filteredUsers);
+        resolve(prevUsers);
       });
   }
 
@@ -251,6 +231,13 @@ class SendBirdAdapter {
   getUserList(channelUrl, cb) {
     if(!this.userListQuery) {
       this.userListQuery = this.sb.createApplicationUserListQuery();
+      /**  
+       * FP CHANGES 
+       * Use metadata of the current user to filter the list of users.
+      */
+      this.userListQuery.metaDataKeyFilter = 'organizationName';
+      this.userListQuery.metaDataValuesFilter = [this.sb.currentUser.metaData.organizationName];
+
       this.userListQuery.limit = 30;
     }
     return new Promise((resolve, reject) => {
