@@ -100,13 +100,17 @@ class Popup extends Element {
     var li = this.createLi();
     var div = this.createDiv();
 
-    if (isInvite) {
-      var userSelect = this.createDiv();
-      this._setClass(userSelect, [className.USER_SELECT]);
-      this._setDataset(userSelect, 'user-id', member.userId);
-      li.select = userSelect;
-      div.appendChild(userSelect);
-    }
+    /**  
+     * FP CHANGES 
+     * Remove multiple select.
+     * */
+    // if (isInvite) {
+    //   var userSelect = this.createDiv();
+    //   this._setClass(userSelect, [className.USER_SELECT]);
+    //   this._setDataset(userSelect, 'user-id', member.userId);
+    //   li.select = userSelect;
+    //   div.appendChild(userSelect);
+    // }
 
     if (isCurrentUser) {
       var userProfileMe = this.createDiv();

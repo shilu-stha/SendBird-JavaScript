@@ -1,6 +1,6 @@
 import { className, MAX_COUNT } from '../consts.js';
 import Element from './elements.js';
-import { show, hide, getFullHeight, removeClass, xssEscape } from '../utils.js';
+import { show, hide, getFullHeight, removeClass, xssEscape, parseUnix } from '../utils.js';
 
 const EMPTY_STRING = '';
 
@@ -524,6 +524,16 @@ class ChatSection extends Element {
       messageItem.appendChild(itemUnread);
     }
 
+    /**
+     * FP Changes
+     * Add time for each message.
+     */
+    var itemDateTime = this.createDiv();
+    this._setClass(itemDateTime, [className.DATE_TIME]);
+    this._setContent(itemDateTime, parseUnix(message.createdAt,'h:mm A'));
+
+    messageItem.appendChild(itemDateTime);
+
     messageContent.appendChild(messageItem);
     messageSet.appendChild(messageContent);
     return messageSet;
@@ -602,11 +612,15 @@ class ChatSection extends Element {
     var userItem = this.createDiv();
     this._setClass(userItem, [className.USER_ITEM]);
 
-    var userSelect = this.createDiv();
-    this._setClass(userSelect, [className.USER_SELECT]);
-    this._setDataset(userSelect, 'user-id', user.userId);
-    li.select = userSelect;
-    userItem.appendChild(userSelect);
+    /**
+     * FP CHANGES 
+     * Remove multiple select.
+     * */
+    // var userSelect = this.createDiv();
+    // this._setClass(userSelect, [className.USER_SELECT]);
+    // this._setDataset(userSelect, 'user-id', user.userId);
+    // li.select = userSelect;
+    // userItem.appendChild(userSelect);
 
     var userProfile = this.createDiv();
     this._setClass(userProfile, [className.IMAGE]);

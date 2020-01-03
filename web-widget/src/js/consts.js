@@ -18,6 +18,7 @@ export const className = {
   TOP: 'top',
   COUNT: 'count',
   TIME: 'time',
+  DATE_TIME: 'date-time',
   UNREAD: 'unread',
 
   CONTENT: 'content',

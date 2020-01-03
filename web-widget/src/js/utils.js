@@ -1,3 +1,5 @@
+import moment from 'moment-timezone';
+
 const ANIMATION_EVENT = 'animationend';
 const ANIMATION_REGEX = 'sb-fade.*';
 const DISPLAY_NONE = 'none';
@@ -181,4 +183,16 @@ export function deleteCookie() {
     document.cookie = 'sendbirdUserId=' + userInfo.userId + ';expires=Thu, 01 Jan 1970 00:00:01 GMT;';
     document.cookie = 'sendbirdNickname=' + userInfo.nickname + ';expires=Thu, 01 Jan 1970 00:00:01 GMT;';
   }
+}
+
+/**
+ * Parse a unix timestamp into a format.
+ *
+ * @param {number} unixDate
+ * @param {string} format
+ * @returns {string}
+ */
+export function parseUnix(unixTimestamp, format) {
+  const date = new Date(unixTimestamp);
+  return moment(date).format(format);
 }
